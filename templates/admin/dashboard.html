@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Udaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-opensans { font-family: 'Open Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 font-opensans">
+<div class="flex h-screen">
+    <aside class="w-64 bg-white shadow-md flex flex-col">
+        <div class="flex items-center justify-center p-6 border-b">
+            <i class="fas fa-paper-plane text-blue-600 text-3xl mr-2"></i>
+            <span class="font-montserrat font-bold text-xl text-blue-600">Udaan Admin</span>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <a href="{{ url_for('admin_dashboard') }}" class="flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg">
+                <i class="fas fa-home w-6"></i><span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('admin_users') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-users w-6"></i><span>Users</span>
+            </a>
+            <a href="{{ url_for('admin_resources') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-book-open w-6"></i><span>Resources</span>
+            </a>
+            <a href="{{ url_for('admin_appointments') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-calendar-check w-6"></i><span>Appointments</span>
+            </a>
+            <a href="{{ url_for('admin_activities') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-gamepad w-6"></i><span>Activities</span>
+            </a>
+            <a href="{{ url_for('admin_forum') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-comments w-6"></i><span>Forum</span>
+            </a>
+            <a href="{{ url_for('admin_volunteers') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-hands-helping w-6"></i><span>Volunteers</span></a>
+            <a href="{{ url_for('admin_bug_reports') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-bug w-6"></i><span>Bug Reports</span>
+            </a>
+            <a href="{{ url_for('admin_settings') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-cog w-6"></i><span>Settings</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t">
+            <a href="{{ url_for('logout') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-sign-out-alt w-6"></i><span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-8 overflow-y-auto">
+        <h1 class="text-3xl font-montserrat font-bold text-gray-800">Campus Wellness Overview</h1>
+        <p class="text-gray-600 mt-2">Aggregated data for the student body.</p>
+        
+        <!-- Stat Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+             <div class="bg-white p-6 rounded-xl shadow-lg flex items-center gap-4">
+                <i class="fas fa-users text-3xl text-blue-500"></i>
+                <div>
+                    <h3 class="text-gray-500 font-semibold">Total Students</h3>
+                    <p class="text-3xl font-bold text-gray-800 mt-1">{{ stats.total_students }}</p>
+                </div>
+             </div>
+             <div class="bg-white p-6 rounded-xl shadow-lg flex items-center gap-4">
+                <i class="fas fa-calendar-check text-3xl text-green-500"></i>
+                <div>
+                    <h3 class="text-gray-500 font-semibold">Appointments Booked</h3>
+                    <p class="text-3xl font-bold text-gray-800 mt-1">{{ stats.total_appointments }}</p>
+                </div>
+             </div>
+             <div class="bg-white p-6 rounded-xl shadow-lg flex items-center gap-4">
+                <i class="fas fa-book-open text-3xl text-yellow-500"></i>
+                <div>
+                    <h3 class="text-gray-500 font-semibold">Resources Available</h3>
+                    <p class="text-3xl font-bold text-gray-800 mt-1">{{ stats.total_resources }}</p>
+                </div>
+             </div>
+             <div class="bg-white p-6 rounded-xl shadow-lg flex items-center gap-4">
+                <i class="fas fa-comments text-3xl text-purple-500"></i>
+                <div>
+                    <h3 class="text-gray-500 font-semibold">Forum Discussions</h3>
+                    <p class="text-3xl font-bold text-gray-800 mt-1">{{ stats.total_forum_posts }}</p>
+                </div>
+             </div>
+        </div>
+
+        <!-- Charts and Recent Activity -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+            <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="font-montserrat font-semibold text-xl mb-4">Overall Mood Distribution</h2>
+                <div class="h-80">
+                    <canvas id="moodChart" 
+                            data-labels='{{ mood_labels | tojson | safe }}'
+                            data-data='{{ mood_chart_data | tojson | safe }}'></canvas>
+                </div>
+            </div>
+            <div class="space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="font-montserrat font-semibold text-xl mb-4">Recent Sign-ups</h2>
+                    <ul class="space-y-3">
+                        {% for student in recent_students %}
+                        <li class="flex items-center">
+                            <i class="fas fa-user-circle text-gray-400 mr-3"></i>
+                            <div>
+                                <p class="font-semibold text-sm">{{ student.username }}</p>
+                                <p class="text-xs text-gray-500">{{ student.created_at.strftime('%d %b %Y') }}</p>
+                            </div>
+                        </li>
+                        {% else %}
+                        <li class="text-gray-500 text-sm">No new students have registered recently.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="font-montserrat font-semibold text-xl mb-4">Latest Forum Posts</h2>
+                     <ul class="space-y-3">
+                        {% for post in recent_posts %}
+                        <li class="text-sm">
+                            <a href="#" class="font-semibold text-blue-600 hover:underline">{{ post.title }}</a>
+                            <p class="text-xs text-gray-500">by {{ post.username }} on {{ post.created_at.strftime('%d %b') }}</p>
+                        </li>
+                         {% else %}
+                        <li class="text-gray-500 text-sm">No new forum posts yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('moodChart');
+        if (ctx) {
+            // FIX: Read data from data attributes to avoid linter errors
+            const moodLabels = JSON.parse(ctx.dataset.labels || '[]');
+            const moodChartData = JSON.parse(ctx.dataset.data || '[]');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: moodLabels,
+                    datasets: [{
+                        label: 'Number of Journal Entries',
+                        data: moodChartData,
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.6)',
+                            'rgba(245, 158, 11, 0.6)',
+                            'rgba(253, 224, 71, 0.6)',
+                            'rgba(163, 230, 53, 0.6)',
+                            'rgba(34, 197, 94, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(253, 224, 71, 1)',
+                            'rgba(163, 230, 53, 1)',
+                            'rgba(34, 197, 94, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
+
