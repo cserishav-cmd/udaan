@@ -1,0 +1,22 @@
+# Web Framework
+flask==3.1.1
+werkzeug==3.1.1
+python-dotenv==1.1.0
+
+Database
+pymysql==1.1.1
+
+# AI and NLP
+langchain==0.3.26
+langchain-community==0.3.26
+langchain-huggingface==0.3.1
+sentence-transformers==4.1.0
+pypdf==5.6.1
+langchain-google-genai==2.1.12
+langchain-pinecone==0.2.8
+twilio==9.3.3
+requests==2.32.3
+
+# Image Processing and ML
+opencv-python-headless==4.9.0.80
+tensorflow==2.16.1
