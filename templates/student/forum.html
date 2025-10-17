@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peer Forum - Udaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-opensans { font-family: 'Open Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 font-opensans">
+<div class="flex h-screen">
+    <aside class="w-64 bg-white shadow-md flex flex-col">
+        <div class="flex items-center justify-center p-6 border-b">
+            <i class="fas fa-paper-plane text-blue-600 text-3xl mr-2"></i>
+            <span class="font-montserrat font-bold text-xl text-blue-600">Udaan</span>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <a href="{{ url_for('student_dashboard') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-home w-6"></i><span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('student_chat') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-comments w-6"></i><span>AI Companion</span>
+            </a>
+            <a href="{{ url_for('student_assessments') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-file-medical-alt w-6"></i><span>Assessments</span>
+            </a>
+            <a href="{{ url_for('student_activities') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+               <i class="fas fa-gamepad w-6"></i><span>Curricular Activities</span>
+            </a>
+            <a href="{{ url_for('student_facial_expression') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-smile-beam w-6"></i><span>Facial Analysis</span>
+            </a>
+             <a href="{{ url_for('student_journal') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-book-medical w-6"></i><span>Wellness Journal</span>
+            </a>
+            <a href="{{ url_for('student_booking') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-calendar-check w-6"></i><span>Appointments</span>
+            </a>
+            <a href="{{ url_for('student_resources') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-book-open w-6"></i><span>Resources</span>
+            </a>
+            <a href="{{ url_for('student_forum') }}" class="flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg">
+                <i class="fas fa-users w-6"></i><span>Peer Forum</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t">
+            <a href="{{ url_for('logout') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-sign-out-alt w-6"></i><span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-8 overflow-y-auto">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-3xl font-montserrat font-bold text-gray-800">Peer Support Forum</h1>
+                <p class="text-gray-600 mt-2">
+                    A safe space to connect with others. 
+                    {% if settings.get('forum_anonymity', 'anonymous') == 'realnames' %}
+                        Your username will be shown.
+                    {% else %}
+                        Your posts will be anonymous.
+                    {% endif %}
+                </p>
+            </div>
+            <div class="flex gap-2">
+                 <button onclick="document.getElementById('guidelinesModal').classList.remove('hidden')" class="bg-gray-200 text-gray-800 font-montserrat font-semibold py-3 px-6 rounded-lg hover:bg-gray-300 transition flex items-center gap-2">
+                    <i class="fas fa-gavel"></i>
+                    Guidelines
+                </button>
+                <button onclick="document.getElementById('newPostModal').classList.remove('hidden')" class="bg-blue-600 text-white font-montserrat font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+                    <i class="fas fa-edit"></i>
+                    Start a New Discussion
+                </button>
+            </div>
+        </div>
+        
+        <!-- Filters -->
+        <div class="mt-6 flex justify-between items-center">
+             <div class="flex space-x-1 rounded-lg bg-gray-200 p-1" role="tablist" aria-orientation="horizontal">
+                <a href="{{ url_for('student_forum', topic_id=active_topic or '') }}" class="px-4 py-2 text-sm font-medium rounded-md {% if not active_filter %} bg-white text-gray-700 shadow-sm {% else %} text-gray-500 hover:text-gray-700 {% endif %}">All Posts</a>
+                <a href="{{ url_for('student_forum', topic_id=active_topic or '', filter='my_discussions') }}" class="px-4 py-2 text-sm font-medium rounded-md {% if active_filter == 'my_discussions' %} bg-white text-gray-700 shadow-sm {% else %} text-gray-500 hover:text-gray-700 {% endif %}">My Discussions</a>
+                <a href="{{ url_for('student_forum', topic_id=active_topic or '', filter='other_discussions') }}" class="px-4 py-2 text-sm font-medium rounded-md {% if active_filter == 'other_discussions' %} bg-white text-gray-700 shadow-sm {% else %} text-gray-500 hover:text-gray-700 {% endif %}">Other Discussions</a>
+            </div>
+        </div>
+
+        <!-- Topics/Categories -->
+        <div class="mt-4 border-b">
+            <nav class="flex space-x-4">
+                <a href="{{ url_for('student_forum', filter=active_filter or '') }}" class="flex items-center px-3 py-2 font-medium text-sm rounded-md {% if not active_topic %}text-blue-700 bg-blue-100{% else %}text-gray-500 hover:text-gray-700{% endif %}">
+                    All Topics
+                </a>
+                {% for topic in topics %}
+                <a href="{{ url_for('student_forum', topic_id=topic.id, filter=active_filter or '') }}" class="flex items-center px-3 py-2 font-medium text-sm rounded-md {% if active_topic == topic.id %}text-blue-700 bg-blue-100{% else %}text-gray-500 hover:text-gray-700{% endif %}">
+                    {{ topic.name }}
+                    <span class="ml-2 bg-gray-300 text-gray-700 text-xs font-semibold px-2 py-0.5 rounded-full">{{ topic.post_count }}</span>
+                </a>
+                {% endfor %}
+            </nav>
+        </div>
+
+        <div class="mt-4 bg-white rounded-xl shadow-lg">
+            <ul class="divide-y">
+                {% for post in posts %}
+                <li class="p-6 hover:bg-gray-50 transition-colors duration-200">
+                    <a href="{{ url_for('student_discussion', post_id=post.id) }}" class="block">
+                        <div class="flex items-center gap-6">
+                            <div class="text-center w-20">
+                                <p class="font-bold text-2xl text-blue-600">{{ post.reply_count }}</p>
+                                <p class="text-sm text-gray-500">Replies</p>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-semibold bg-gray-200 text-gray-700 px-2 py-1 rounded-full">{{ post.topic_name }}</span>
+                                    {% if post.status == 'resolved' %}
+                                        <span class="text-xs font-bold text-green-700 bg-green-100 px-2 py-1 rounded-full flex items-center gap-1"><i class="fas fa-check-circle"></i> Resolved</span>
+                                    {% endif %}
+                                </div>
+                                <h2 class="font-montserrat font-semibold text-lg text-gray-800 mt-2">{{ post.title }}</h2>
+                                <div class="flex items-center gap-4 text-sm text-gray-500 mt-2">
+                                    <span>Posted by <span class="font-semibold">
+                                        {% if settings.get('forum_anonymity', 'anonymous') == 'realnames' %}
+                                            {{ post.username }}
+                                        {% else %}
+                                            {{ get_anonymous_name(post.user_id) }}
+                                        {% endif %}
+                                    </span></span>
+                                    <span>•</span>
+                                    <span>{{ post.created_at.strftime('%B %d, %Y') }}</span>
+                                </div>
+                            </div>
+                             <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                    </a>
+                </li>
+                {% else %}
+                <li class="p-6 text-center text-gray-500">
+                    No discussions found matching your criteria.
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </main>
+
+    <!-- Guidelines Modal -->
+    <div id="guidelinesModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50">
+      <div class="relative mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
+        <h3 class="text-2xl font-montserrat font-bold text-gray-900 mb-4">Forum Guidelines</h3>
+        <ul class="space-y-3 list-disc list-inside text-gray-700">
+            {% for guideline in guidelines %}
+                <li>{{ guideline.guideline }}</li>
+            {% endfor %}
+        </ul>
+        <div class="text-right mt-6">
+            <button type="button" onclick="document.getElementById('guidelinesModal').classList.add('hidden')" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                I Understand
+            </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Post Modal -->
+    <div id="newPostModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50">
+      <div class="relative mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
+        <form action="{{ url_for('add_post') }}" method="post">
+            <h3 class="text-2xl font-montserrat font-bold text-gray-900 mb-4">Start a New Discussion</h3>
+            <div class="space-y-4">
+                <div>
+                    <label for="topic_id" class="block text-sm font-medium text-gray-700">Choose a Topic</label>
+                    <select name="topic_id" id="topic_id" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3" required>
+                        <option value="" disabled selected>Select a topic...</option>
+                        {% for topic in topics %}
+                        <option value="{{ topic.id }}">{{ topic.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                    <input type="text" name="title" id="title" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3" required>
+                </div>
+                <div>
+                    <label for="content" class="block text-sm font-medium text-gray-700">Content</label>
+                    <textarea name="content" id="content" rows="5" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3" required></textarea>
+                </div>
+            </div>
+            <div class="items-center px-4 py-3 mt-4 text-right">
+                <button type="button" onclick="document.getElementById('newPostModal').classList.add('hidden')" class="px-6 py-2 bg-gray-200 text-gray-800 rounded-md mr-2 hover:bg-gray-300">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Post
+                </button>
+            </div>
+        </form>
+      </div>
+    </div>
+
+</div>
+</body>
+</html>
+

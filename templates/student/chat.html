@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Udaan AI Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar { transition: transform 0.3s ease-in-out; }
+        .sidebar-open { transform: translateX(0); }
+        .sidebar-closed { transform: translateX(-100%); }
+        @media (min-width: 768px) {
+            .sidebar-closed { transform: translateX(0); }
+        }
+        #chatbox::-webkit-scrollbar { width: 4px; }
+        #chatbox::-webkit-scrollbar-thumb { background-color: #a0aec0; border-radius: 20px; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar sidebar-closed md:sidebar-open fixed md:relative z-20 w-64 bg-white shadow-lg p-4 h-full flex flex-col">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Chat History</h1>
+                <button id="close-sidebar" class="md:hidden text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <a href="{{ url_for('student_chat') }}" class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300 text-center mb-4">
+                <i class="fas fa-plus mr-2"></i> New Chat
+            </a>
+            <div class="flex-grow overflow-y-auto">
+                <ul id="session-list">
+                    {% for session in sessions %}
+                    <li class="mb-2">
+                        <a href="{{ url_for('student_chat', session_id=session.id) }}" 
+                           class="flex justify-between items-center p-3 rounded-lg transition duration-200 {{ 'bg-blue-100 text-blue-800 font-semibold' if session.id == active_session_id else 'text-gray-700 hover:bg-gray-200' }}">
+                            <span class="truncate pr-2">{{ session.title }}</span>
+                            <i class="fas fa-chevron-right text-xs text-gray-500"></i>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+             <div class="mt-auto">
+                <a href="{{ url_for('student_dashboard') }}" class="block w-full text-center text-gray-600 hover:text-blue-600 p-3 rounded-lg transition duration-200">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="flex-1 flex flex-col h-screen">
+            <header class="bg-white shadow-md p-4 flex items-center justify-between z-10">
+                 <button id="open-sidebar" class="md:hidden text-gray-600 hover:text-gray-800 mr-4">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <h2 class="text-xl font-semibold text-gray-800">Udaan AI Companion</h2>
+            </header>
+            
+            <main id="chatbox" class="flex-1 overflow-y-auto p-6">
+                <!-- Chat messages will be appended here -->
+                {% if not chat_history %}
+                <div class="text-center text-gray-500">
+                    <p class="text-lg">Welcome! How can I help you today?</p>
+                </div>
+                {% else %}
+                    {% for chat in chat_history %}
+                        {% if chat.sender == 'user' %}
+                        <div class="flex justify-end mb-4">
+                            <div class="bg-blue-500 text-white rounded-lg py-2 px-4 max-w-lg">
+                                {{ chat.message }}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="flex justify-start mb-4">
+                            <div class="bg-gray-200 text-gray-800 rounded-lg py-2 px-4 max-w-lg">
+                                {{ chat.message | safe }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </main>
+
+            <footer class="bg-white border-t border-gray-200 p-4">
+                <div class="flex items-center">
+                    <input id="userInput" type="text" placeholder="Type your message..." class="flex-1 border border-gray-300 rounded-full py-3 px-6 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <button id="sendBtn" class="bg-blue-500 text-white rounded-full p-3 ml-4 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        // --- Sidebar Toggle ---
+        $('#open-sidebar').click(function() {
+            $('#sidebar').removeClass('sidebar-closed').addClass('sidebar-open');
+        });
+        $('#close-sidebar').click(function() {
+            $('#sidebar').removeClass('sidebar-open').addClass('sidebar-closed');
+        });
+
+        // --- Chat Functionality ---
+        function getActiveSessionId() {
+            // Get session ID from the URL path
+            const pathParts = window.location.pathname.split('/');
+            const sessionId = pathParts[pathParts.length - 1];
+            // If the last part is 'chat' or not a valid UUID format, there's no active session
+            if (sessionId === 'chat' || !sessionId.match(/^[0-9a-f-]{36}$/i)) {
+                return null;
+            }
+            return sessionId;
+        }
+
+        let activeSessionId = getActiveSessionId();
+
+        function sendMessage() {
+            const userInput = $("#userInput").val();
+            if (userInput.trim() === "") return;
+
+            // Append user message
+            const userHtml = '<div class="flex justify-end mb-4"><div class="bg-blue-500 text-white rounded-lg py-2 px-4 max-w-lg">' + userInput + '</div></div>';
+            $("#chatbox").append(userHtml);
+            $("#userInput").val("");
+            scrollToBottom();
+
+            // Show typing indicator
+            const typingIndicator = '<div id="typing-indicator" class="flex justify-start mb-4"><div class="bg-gray-200 text-gray-800 rounded-lg py-2 px-4 max-w-lg"><em>Typing...</em></div></div>';
+            $("#chatbox").append(typingIndicator);
+            scrollToBottom();
+
+            $.ajax({
+                url: "/get",
+                type: "POST",
+                data: { msg: userInput, sessionid: activeSessionId },
+                success: function(data) {
+                    $("#typing-indicator").remove(); // Remove typing indicator
+                    // **THE FIX IS HERE:** Changed .text() to .html() to render the link
+                    const botHtml = '<div class="flex justify-start mb-4"><div class="bg-gray-200 text-gray-800 rounded-lg py-2 px-4 max-w-lg">' + data.response + '</div></div>';
+                    $("#chatbox").append(botHtml);
+                    
+                    if (data.session_id && !activeSessionId) {
+                        // This was a new chat, redirect to the new session URL
+                        window.history.pushState({}, '', '/student/chat/' + data.session_id);
+                        activeSessionId = data.session_id;
+                        // Optionally refresh the session list or add the new one dynamically
+                        location.reload(); 
+                    }
+                    scrollToBottom();
+                },
+                error: function() {
+                    $("#typing-indicator").remove();
+                    const errorHtml = '<div class="flex justify-start mb-4"><div class="bg-red-200 text-red-800 rounded-lg py-2 px-4 max-w-lg">Sorry, something went wrong. Please try again.</div></div>';
+                    $("#chatbox").append(errorHtml);
+                    scrollToBottom();
+                }
+            });
+        }
+        
+        function scrollToBottom() {
+             $('#chatbox').scrollTop($('#chatbox')[0].scrollHeight);
+        }
+
+        $("#sendBtn").click(sendMessage);
+
+        $("#userInput").keypress(function(e) {
+            if (e.which == 13) { // 13 is the Enter key
+                sendMessage();
+            }
+        });
+        
+        // Scroll to the bottom on page load
+        $(document).ready(function() {
+            scrollToBottom();
+        });
+    </script>
+</body>
+</html>

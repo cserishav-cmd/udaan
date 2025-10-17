@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Curricular Activities - Udaan</title>
+    <title>My Appointments - Udaan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -29,7 +29,7 @@
             <a href="{{ url_for('student_assessments') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
                 <i class="fas fa-file-medical-alt w-6"></i><span>Assessments</span>
             </a>
-             <a href="{{ url_for('student_activities') }}" class="flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg">
+             <a href="{{ url_for('student_activities') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
                 <i class="fas fa-gamepad w-6"></i><span>Curricular Activities</span>
             </a>
             <a href="{{ url_for('student_facial_expression') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
@@ -38,7 +38,7 @@
             <a href="{{ url_for('student_journal') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
                 <i class="fas fa-book-medical w-6"></i><span>Wellness Journal</span>
             </a>
-            <a href="{{ url_for('student_booking') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+            <a href="{{ url_for('student_booking') }}" class="flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg">
                 <i class="fas fa-calendar-check w-6"></i><span>Appointments</span>
             </a>
             <a href="{{ url_for('student_resources') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
@@ -54,46 +54,57 @@
     </aside>
 
     <main class="flex-1 p-8 overflow-y-auto">
-        <h1 class="text-3xl font-montserrat font-bold text-gray-800">Curricular Activities</h1>
-        <p class="text-gray-600 mt-2">Take a break to relax and recenter your mind.</p>
-        
-        <!-- Games Section -->
-        <div class="mt-8">
-            <h2 class="text-2xl font-bold text-gray-700 mb-4">Mindful Games</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {% for activity in activities if activity.type == 'Game' %}
-                <a href="{{ url_for('student_activity_view', activity_name=activity.name) }}" class="block bg-white rounded-xl shadow-lg overflow-hidden group hover:shadow-xl transition-shadow duration-300">
-                    <div class="p-6">
-                        <h3 class="font-montserrat font-semibold text-xl text-gray-800">{{ activity.title }}</h3>
-                        <p class="font-opensans text-gray-600 mt-2 h-16">{{ activity.description }}</p>
-                        <div class="mt-4 pt-4 border-t">
-                            <p class="text-sm text-gray-500">Your High Score:</p>
-                            <p class="font-bold text-2xl text-blue-600">{{ high_scores.get(activity.name, 0) }}</p>
-                        </div>
-                    </div>
-                </a>
-                {% endfor %}
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-montserrat font-bold text-gray-800">My Appointments</h1>
+                <p class="text-gray-600 mt-2">A history of your upcoming and past sessions.</p>
             </div>
+            <a href="{{ url_for('student_booking') }}" class="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition">
+                Book a New Appointment
+            </a>
         </div>
 
-        <!-- Meditation & Music Section -->
-        <div class="mt-12">
-            <h2 class="text-2xl font-bold text-gray-700 mb-4">Relaxation</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {% for activity in activities if activity.type in ['Meditation', 'Music'] %}
-                <a href="{{ url_for('student_activity_view', activity_name=activity.name) }}" class="block bg-white rounded-xl shadow-lg overflow-hidden group hover:shadow-xl transition-shadow duration-300">
-                    <div class="p-6">
-                         <span class="text-sm font-semibold 
-                            {% if activity.type == 'Meditation' %} text-purple-600 bg-purple-100 
-                            {% elif activity.type == 'Music' %} text-green-600 bg-green-100 
-                            {% endif %} px-2 py-1 rounded-full">
-                            {{ activity.type }}
-                        </span>
-                        <h3 class="font-montserrat font-semibold text-xl text-gray-800 mt-3">{{ activity.title }}</h3>
-                        <p class="font-opensans text-gray-600 mt-2 h-16">{{ activity.description }}</p>
-                    </div>
-                </a>
+        <div class="mt-8 bg-white p-8 rounded-xl shadow-lg">
+            <h2 class="font-montserrat font-semibold text-xl mb-4">Upcoming Sessions</h2>
+            <div class="space-y-4">
+                {% set upcoming_found = false %}
+                {% for appt in appointments %}
+                    {% set appt_datetime = datetime.combine(appt.slot_date, appt.start_time) %}
+                    {% if appt_datetime >= current_time %}
+                        <div class="p-4 border rounded-lg flex justify-between items-center bg-blue-50">
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ appt.counselor_name }}</p>
+                                <p class="text-sm text-gray-600">{{ appt.slot_date.strftime('%A, %B %d, %Y') }} at {{ appt.start_time.strftime('%I:%M %p') }}</p>
+                            </div>
+                            <span class="text-sm font-bold text-blue-700">UPCOMING</span>
+                        </div>
+                        {% set upcoming_found = true %}
+                    {% endif %}
                 {% endfor %}
+                {% if not upcoming_found %}
+                    <p class="text-gray-500">You have no upcoming appointments.</p>
+                {% endif %}
+            </div>
+
+            <h2 class="font-montserrat font-semibold text-xl mb-4 mt-10 border-t pt-6">Past Sessions</h2>
+            <div class="space-y-4">
+                {% set past_found = false %}
+                {% for appt in appointments %}
+                    {% set appt_datetime = datetime.combine(appt.slot_date, appt.start_time) %}
+                    {% if appt_datetime < current_time %}
+                        <div class="p-4 border rounded-lg flex justify-between items-center bg-gray-50 opacity-70">
+                            <div>
+                                <p class="font-semibold text-gray-700">{{ appt.counselor_name }}</p>
+                                <p class="text-sm text-gray-500">{{ appt.slot_date.strftime('%A, %B %d, %Y') }} at {{ appt.start_time.strftime('%I:%M %p') }}</p>
+                            </div>
+                             <span class="text-sm font-bold text-gray-600">COMPLETED</span>
+                        </div>
+                        {% set past_found = true %}
+                    {% endif %}
+                {% endfor %}
+                 {% if not past_found %}
+                    <p class="text-gray-500">You have no past appointments.</p>
+                {% endif %}
             </div>
         </div>
     </main>

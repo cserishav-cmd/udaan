@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Result - Udaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-opensans { font-family: 'Open Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 font-opensans">
+<div class="flex h-screen">
+    <aside class="w-64 bg-white shadow-md flex flex-col">
+        <div class="flex items-center justify-center p-6 border-b">
+            <i class="fas fa-paper-plane text-blue-600 text-3xl mr-2"></i>
+            <span class="font-montserrat font-bold text-xl text-blue-600">Udaan</span>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <a href="{{ url_for('student_dashboard') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-home w-6"></i><span>Dashboard</span></a>
+            <a href="{{ url_for('student_chat') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-comments w-6"></i><span>AI Companion</span></a>
+            <a href="{{ url_for('student_assessments') }}" class="flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg"><i class="fas fa-file-medical-alt w-6"></i><span>Assessments</span></a>
+            <a href="{{ url_for('student_journal') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-book-medical w-6"></i><span>Wellness Journal</span></a>
+            <a href="{{ url_for('student_booking') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-calendar-check w-6"></i><span>Appointments</span></a>
+            <a href="{{ url_for('student_resources') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-book-open w-6"></i><span>Resources</span></a>
+            <a href="{{ url_for('student_forum') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-users w-6"></i><span>Peer Forum</span></a>
+        </nav>
+        <div class="p-4 border-t">
+            <a href="{{ url_for('logout') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-sign-out-alt w-6"></i><span>Logout</span></a>
+        </div>
+    </aside>
+    <main class="flex-1 p-8 overflow-y-auto">
+        <h1 class="text-3xl font-montserrat font-bold text-gray-800">Your {{ assessment_type }} Result</h1>
+        
+        <div class="mt-8 bg-white p-8 rounded-xl shadow-lg">
+            <div class="text-center border-b pb-6">
+                <p class="text-gray-600">Your Score</p>
+                <p class="text-6xl font-bold text-blue-600 my-2">{{ score }}</p>
+                <p class="font-semibold text-xl text-gray-800">{{ interpretation.level }}</p>
+                <p class="text-gray-600 mt-2 max-w-2xl mx-auto">{{ interpretation.description }}</p>
+            </div>
+            
+            <div class="mt-8">
+                <h2 class="font-montserrat font-semibold text-xl mb-4 text-gray-800">General Suggestions</h2>
+                <ul class="space-y-4">
+                    {% for suggestion in interpretation.suggestions %}
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
+                        <span class="text-gray-700">{{ suggestion }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            {% if interpretation.show_urgent_suggestions %}
+            <div class="mt-8 p-6 rounded-lg bg-yellow-50 border-l-4 border-yellow-400">
+                <h3 class="font-montserrat font-bold text-xl text-yellow-800 mb-4">We're Here to Help</h3>
+                <p class="text-yellow-700 mb-6">Based on your results, we recommend taking one of the following steps. Reaching out is a sign of strength.</p>
+                <div class="flex flex-col sm:flex-row items-start gap-4">
+                    {% for suggestion in interpretation.linked_suggestions %}
+                    <a href="{{ url_for(suggestion.url_key) }}" class="w-full sm:w-auto bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition text-center">
+                        {{ suggestion.text }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="mt-8 pt-6 border-t flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="{{ url_for('student_assessments') }}" class="bg-gray-200 text-gray-800 font-semibold py-2 px-6 rounded-lg hover:bg-gray-300 transition">
+                    Back to Assessments
+                </a>
+                <a href="{{ url_for('student_assessment_history') }}" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition">
+                    View Full History
+                </a>
+            </div>
+             <p class="text-xs text-gray-400 mt-8 text-center">Disclaimer: This assessment is a screening tool and not a substitute for a professional diagnosis. The suggestions provided are for informational purposes only.</p>
+        </div>
+    </main>
+</div>
+</body>
+</html>
+

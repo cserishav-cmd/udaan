@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment History - Udaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-opensans { font-family: 'Open Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 font-opensans">
+<div id="chart-data-container" data-chartdata='{{ chart_data | tojson | safe }}' style="display: none;"></div>
+<div class="flex h-screen">
+    <aside class="w-64 bg-white shadow-md flex flex-col">
+        <div class="flex items-center justify-center p-6 border-b">
+            <i class="fas fa-paper-plane text-blue-600 text-3xl mr-2"></i>
+            <span class="font-montserrat font-bold text-xl text-blue-600">Udaan</span>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <a href="{{ url_for('student_dashboard') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-home w-6"></i><span>Dashboard</span></a>
+            <a href="{{ url_for('student_chat') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-comments w-6"></i><span>AI Companion</span></a>
+            <a href="{{ url_for('student_assessments') }}" class="flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg"><i class="fas fa-file-medical-alt w-6"></i><span>Assessments</span></a>
+            <a href="{{ url_for('student_journal') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-book-medical w-6"></i><span>Wellness Journal</span></a>
+            <a href="{{ url_for('student_booking') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-calendar-check w-6"></i><span>Appointments</span></a>
+            <a href="{{ url_for('student_resources') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-book-open w-6"></i><span>Resources</span></a>
+            <a href="{{ url_for('student_forum') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-users w-6"></i><span>Peer Forum</span></a>
+        </nav>
+        <div class="p-4 border-t">
+            <a href="{{ url_for('logout') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-sign-out-alt w-6"></i><span>Logout</span></a>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-8 overflow-y-auto">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-montserrat font-bold text-gray-800">Assessment History</h1>
+                <p class="text-gray-600 mt-2">Track your assessment scores over time.</p>
+            </div>
+            <a href="{{ url_for('student_assessments') }}" class="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition">
+                Take a New Assessment
+            </a>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="font-montserrat font-semibold text-xl mb-4">Score History</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr>
+                                <th class="py-3 px-4">Assessment</th>
+                                <th class="py-3 px-4">Score</th>
+                                <th class="py-3 px-4">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in history %}
+                            <tr class="border-b">
+                                <td class="py-4 px-4">{{ item.assessment_type }}</td>
+                                <td class="py-4 px-4 font-bold">{{ item.score }}</td>
+                                <td class="py-4 px-4">{{ item.created_at.strftime('%B %d, %Y') }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-8 text-gray-500">You have not completed any assessments yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="space-y-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="font-montserrat font-semibold text-xl mb-4">PHQ-9 Trend</h2>
+                    <canvas id="phq9Chart"></canvas>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="font-montserrat font-semibold text-xl mb-4">GAD-7 Trend</h2>
+                    <canvas id="gad7Chart"></canvas>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="font-montserrat font-semibold text-xl mb-4">GHQ-12 Trend</h2>
+                    <canvas id="ghq12Chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const chartDataElement = document.getElementById('chart-data-container');
+        const chartData = JSON.parse(chartDataElement.dataset.chartdata);
+
+        new Chart(document.getElementById('phq9Chart'), {
+            type: 'line',
+            data: {
+                labels: chartData.phq9.labels,
+                datasets: [{
+                    label: 'PHQ-9 Score',
+                    data: chartData.phq9.scores,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            }
+        });
+
+        new Chart(document.getElementById('gad7Chart'), {
+            type: 'line',
+            data: {
+                labels: chartData.gad7.labels,
+                datasets: [{
+                    label: 'GAD-7 Score',
+                    data: chartData.gad7.scores,
+                    borderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1
+                }]
+            }
+        });
+
+        new Chart(document.getElementById('ghq12Chart'), {
+            type: 'line',
+            data: {
+                labels: chartData.ghq12.labels,
+                datasets: [{
+                    label: 'GHQ-12 Score',
+                    data: chartData.ghq12.scores,
+                    borderColor: 'rgb(54, 162, 235)',
+                    tension: 0.1
+                }]
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
+

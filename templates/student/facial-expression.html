@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facial Expression Analysis - Udaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-opensans { font-family: 'Open Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 font-opensans">
+<div id="chart-data-container" data-chartdata='{{ chart_data | tojson | safe }}' style="display: none;"></div>
+<div class="flex h-screen">
+    <aside class="w-64 bg-white shadow-md flex flex-col">
+        <div class="flex items-center justify-center p-6 border-b">
+            <i class="fas fa-paper-plane text-blue-600 text-3xl mr-2"></i>
+            <span class="font-montserrat font-bold text-xl text-blue-600">Udaan</span>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <a href="{{ url_for('student_dashboard') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-home w-6"></i><span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('student_chat') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-comments w-6"></i><span>AI Companion</span>
+            </a>
+            <a href="{{ url_for('student_assessments') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-file-medical-alt w-6"></i><span>Assessments</span>
+            </a>
+             <a href="{{ url_for('student_activities') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-gamepad w-6"></i><span>Curricular Activities</span>
+            </a>
+            <a href="{{ url_for('student_facial_expression') }}" class="flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg">
+                <i class="fas fa-smile-beam w-6"></i><span>Facial Analysis</span>
+            </a>
+            <a href="{{ url_for('student_journal') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-book-medical w-6"></i><span>Wellness Journal</span>
+            </a>
+            <a href="{{ url_for('student_booking') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-calendar-check w-6"></i><span>Appointments</span>
+            </a>
+            <a href="{{ url_for('student_resources') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-book-open w-6"></i><span>Resources</span>
+            </a>
+            <a href="{{ url_for('student_forum') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-users w-6"></i><span>Peer Forum</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t">
+            <a href="{{ url_for('logout') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-sign-out-alt w-6"></i><span>Logout</span></a>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-8 overflow-y-auto">
+        <h1 class="text-3xl font-montserrat font-bold text-gray-800">Facial Expression Analysis</h1>
+        <p class="text-gray-600 mt-2">Get real-time insights into your emotional state. This is a private analysis just for you.</p>
+
+        <div class="mt-8 grid grid-cols-1 lg:grid-cols-5 gap-8">
+            <div class="lg:col-span-3 bg-white p-6 rounded-xl shadow-lg flex flex-col items-center justify-center">
+                <h2 class="font-montserrat font-semibold text-xl mb-4 self-start">Live Camera Feed</h2>
+                <!-- FIX: Added cursor-pointer to make the whole area seem clickable -->
+                <div id="camera-container" class="w-full h-96 bg-gray-900 rounded-lg flex items-center justify-center text-white relative cursor-pointer">
+                    <img id="video_feed" src="" alt="Video Feed" class="rounded-lg h-full">
+                     <div id="placeholder" class="absolute inset-0 flex items-center justify-center">
+                        <p>Camera is off. Click here or the button below to begin.</p>
+                    </div>
+                </div>
+                <button id="toggle-analysis-btn" class="mt-4 bg-blue-600 text-white font-montserrat font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition">
+                    Start Analysis
+                </button>
+            </div>
+
+            <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="font-montserrat font-semibold text-xl mb-4">Emotion History (Last 30 Days)</h2>
+                <div class="h-96">
+                     <canvas id="emotionChart"></canvas>
+                </div>
+                 <p class="text-xs text-gray-400 mt-4 text-center">Note: Data is saved every 5 seconds during an active analysis session.</p>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleBtn = document.getElementById('toggle-analysis-btn');
+        const videoFeed = document.getElementById('video_feed');
+        const placeholder = document.getElementById('placeholder');
+        const cameraContainer = document.getElementById('camera-container'); // Get the container
+        let isAnalysisRunning = false;
+
+        // Function to start the analysis
+        function startAnalysis() {
+            if (isAnalysisRunning) return; // Prevent starting multiple times
+            isAnalysisRunning = true;
+            videoFeed.src = "{{ url_for('video_feed') }}";
+            placeholder.classList.add('hidden');
+            toggleBtn.textContent = 'Stop Analysis & Refresh';
+            toggleBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            toggleBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+        }
+
+        // Function to stop the analysis
+        function stopAnalysis() {
+            if (!isAnalysisRunning) return;
+            isAnalysisRunning = false;
+            // Stop the feed by setting src to empty and refresh the page to update the chart
+            videoFeed.src = "";
+            window.location.reload();
+        }
+
+        // Event listener for the main button
+        toggleBtn.addEventListener('click', function() {
+            if (isAnalysisRunning) {
+                stopAnalysis();
+            } else {
+                startAnalysis();
+            }
+        });
+
+        // FIX: Add event listener to the camera container to also start the analysis
+        cameraContainer.addEventListener('click', startAnalysis);
+
+        // Chart.js implementation
+        const chartDataElement = document.getElementById('chart-data-container');
+        const chartData = JSON.parse(chartDataElement.dataset.chartdata);
+        const ctx = document.getElementById('emotionChart').getContext('2d');
+
+        const colors = {
+            neutral: 'rgba(156, 163, 175, 0.7)',
+            happy: 'rgba(52, 211, 153, 0.7)',
+            surprise: 'rgba(251, 191, 36, 0.7)',
+            angry: 'rgba(239, 68, 68, 0.7)',
+            disgust: 'rgba(132, 204, 22, 0.7)',
+            fear: 'rgba(168, 85, 247, 0.7)',
+            sad: 'rgba(59, 130, 246, 0.7)'
+        };
+
+        const borderColors = {
+            neutral: 'rgba(156, 163, 175, 1)',
+            happy: 'rgba(52, 211, 153, 1)',
+            surprise: 'rgba(251, 191, 36, 1)',
+            angry: 'rgba(239, 68, 68, 1)',
+            disgust: 'rgba(132, 204, 22, 1)',
+            fear: 'rgba(168, 85, 247, 1)',
+            sad: 'rgba(59, 130, 246, 1)'
+        };
+
+        const datasets = Object.keys(chartData.datasets).map(emotion => {
+            return {
+                label: emotion.charAt(0).toUpperCase() + emotion.slice(1),
+                data: chartData.datasets[emotion],
+                borderColor: borderColors[emotion],
+                backgroundColor: colors[emotion],
+                fill: false,
+                tension: 0.1
+            }
+        });
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                         ticks: {
+                            precision: 0
+                        },
+                        title: {
+                            display: true,
+                            text: 'Times Detected'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>
+

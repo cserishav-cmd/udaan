@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Udaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-opensans { font-family: 'Open Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 font-opensans">
+<div class="flex flex-col h-screen">
+    <header class="bg-white shadow-md z-10">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <i class="fas fa-paper-plane text-blue-600 text-3xl mr-2"></i>
+                <div>
+                    <span class="font-montserrat font-bold text-xl text-blue-600">Udaan</span>
+                    <span class="block text-xs text-gray-500">Institutional Dashboard</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-6">
+                <a href="#" class="font-semibold text-gray-700 hover:text-blue-600">Dashboard</a>
+                <a href="#" class="text-gray-600 hover:text-blue-600">Reports</a>
+                <a href="index.html" class="text-gray-600 hover:text-blue-600 flex items-center gap-2">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 p-8 overflow-y-auto">
+        <h1 class="text-3xl font-montserrat font-bold text-gray-800">Campus Wellness Overview</h1>
+        <p class="text-gray-600 mt-2">Anonymous, aggregated data for the student body.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-gray-500 font-semibold">Active Students</h3>
+                <p class="text-3xl font-bold text-gray-800 mt-2">1,245</p>
+                <p class="text-sm text-green-500 mt-1">+5% from last month</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-gray-500 font-semibold">Appointments Booked (This Month)</h3>
+                <p class="text-3xl font-bold text-gray-800 mt-2">82</p>
+                <p class="text-sm text-green-500 mt-1">+12% from last month</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-gray-500 font-semibold">Overall Wellness Score</h3>
+                <p class="text-3xl font-bold text-gray-800 mt-2">7.2 <span class="text-lg">/ 10</span></p>
+                <p class="text-sm text-red-500 mt-1">-0.3 from last month</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-gray-500 font-semibold">Top Resource Category</h3>
+                <p class="text-3xl font-bold text-gray-800 mt-2">Academic Stress</p>
+                <p class="text-sm text-gray-500 mt-1">Most accessed articles and videos</p>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="font-montserrat font-semibold text-xl mb-4">Wellness Trend (Last 6 Months)</h2>
+                <img src="https://i.imgur.com/w9z3Z2k.png" alt="A line chart showing a wellness score trend over six months." class="w-full h-auto">
+            </div>
+             <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="font-montserrat font-semibold text-xl mb-4">Most Common Stress Factors (Anonymous)</h2>
+                 <img src="https://i.imgur.com/eB3sYpA.png" alt="A bar chart showing the most common stress factors like Academics, Social, and Financial." class="w-full h-auto">
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

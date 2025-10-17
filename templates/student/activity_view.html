@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ activity.title }} - Udaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-opensans { font-family: 'Open Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 font-opensans">
+<div class="flex flex-col h-screen">
+    <header class="bg-white shadow-md z-10 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <a href="{{ url_for('student_activities') }}" class="text-blue-600 hover:underline">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Activities
+                </a>
+                <h1 class="text-2xl font-montserrat font-bold text-gray-800 mt-2">{{ activity.title }}</h1>
+            </div>
+            <!-- High Score Display -->
+            {% if activity.type == 'Game' %}
+            <div class="text-right">
+                <p class="text-gray-500">Your High Score:</p>
+                <p id="high-score-display" class="font-bold text-3xl text-blue-600">{{ high_score }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col">
+        <!-- FIX: Convert YouTube 'watch' URL to 'embed' URL for proper playback -->
+        <iframe src="{{ activity.embed_url.replace('watch?v=', 'embed/') }}" class="w-full h-full border-0" allowfullscreen></iframe>
+    </main>
+
+    <!-- Manual Score Submission Form for Games -->
+    {% if activity.type == 'Game' %}
+    <footer class="bg-white p-4 border-t">
+        <div class="container mx-auto">
+            <div id="save-score-form" class="flex items-center justify-center gap-4">
+                <label for="score-input" class="font-semibold text-gray-700">Finished Playing?</label>
+                <input type="number" id="score-input" placeholder="Enter your score" class="px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button id="save-score-btn" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 transition">
+                    Save High Score
+                </button>
+            </div>
+            <p id="score-message" class="text-center mt-2 text-green-600 font-semibold"></p>
+        </div>
+    </footer>
+    {% endif %}
+</div>
+
+{% if activity.type == 'Game' %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const saveBtn = document.getElementById('save-score-btn');
+        const scoreInput = document.getElementById('score-input');
+        const scoreMessage = document.getElementById('score-message');
+        const highScoreDisplay = document.getElementById('high-score-display');
+        const activityName = "{{ activity.name }}";
+
+        saveBtn.addEventListener('click', function() {
+            const score = scoreInput.value;
+            if (!score || isNaN(score) || score < 0) {
+                alert('Please enter a valid score.');
+                return;
+            }
+
+            // Use the Fetch API to send the score to the backend
+            fetch('/save_score', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    game_name: activityName,
+                    score: parseInt(score)
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                scoreMessage.textContent = data.message;
+                // If a new high score was saved, update the display
+                if (data.message.includes('New high score')) {
+                    highScoreDisplay.textContent = score;
+                }
+                // Clear the message after a few seconds
+                setTimeout(() => {
+                    scoreMessage.textContent = '';
+                }, 4000);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                scoreMessage.textContent = 'An error occurred. Could not save score.';
+                scoreMessage.style.color = 'red';
+                 setTimeout(() => {
+                    scoreMessage.textContent = '';
+                    scoreMessage.style.color = 'green';
+                }, 4000);
+            });
+        });
+    });
+</script>
+{% endif %}
+</body>
+</html>

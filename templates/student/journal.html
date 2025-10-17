@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness Journal - Udaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-opensans { font-family: 'Open Sans', sans-serif; }
+        /* Style for selected mood */
+        input[type="radio"]:checked + label {
+            transform: scale(1.2);
+            border: 2px solid #2B6CB0;
+            border-radius: 50%;
+        }
+        /* Custom scrollbar for entries */
+        .entries-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .entries-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .entries-container::-webkit-scrollbar-thumb {
+            background: #c5c5c5;
+            border-radius: 10px;
+        }
+        .entries-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-opensans">
+<div class="flex h-screen">
+    <aside class="w-64 bg-white shadow-md flex flex-col">
+        <div class="flex items-center justify-center p-6 border-b">
+            <i class="fas fa-paper-plane text-blue-600 text-3xl mr-2"></i>
+            <span class="font-montserrat font-bold text-xl text-blue-600">Udaan</span>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <a href="{{ url_for('student_dashboard') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-home w-6"></i><span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('student_chat') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-comments w-6"></i><span>AI Companion</span>
+            </a>
+            <a href="{{ url_for('student_assessments') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-file-medical-alt w-6"></i><span>Assessments</span>
+            </a>
+             <a href="{{ url_for('student_activities') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-gamepad w-6"></i><span>Curricular Activities</span>
+            </a>
+            <a href="{{ url_for('student_facial_expression') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-smile-beam w-6"></i><span>Facial Analysis</span>
+            </a>
+            <a href="{{ url_for('student_journal') }}" class="flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg">
+                <i class="fas fa-book-medical w-6"></i><span>Wellness Journal</span>
+            </a>
+            <a href="{{ url_for('student_booking') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-calendar-check w-6"></i><span>Appointments</span>
+            </a>
+            <a href="{{ url_for('student_resources') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-book-open w-6"></i><span>Resources</span>
+            </a>
+            <a href="{{ url_for('student_forum') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg">
+                <i class="fas fa-users w-6"></i><span>Peer Forum</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t">
+            <a href="{{ url_for('logout') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-lg"><i class="fas fa-sign-out-alt w-6"></i><span>Logout</span></a>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+        <h1 class="text-2xl md:text-3xl font-montserrat font-bold text-gray-800">My Wellness Journal</h1>
+        <p class="text-gray-600 mt-2">A private space to reflect and track your journey.</p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mt-6 md:mt-8">
+            <div class="lg:col-span-2 space-y-6 md:space-y-8">
+                <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg">
+                    <h2 class="font-montserrat font-semibold text-lg md:text-xl mb-4">Add a New Entry for Today</h2>
+                    <form action="{{ url_for('add_journal_entry') }}" method="post">
+                        <textarea name="entry_text" class="w-full h-32 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="What's on your mind?" required></textarea>
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between mt-4 space-y-4 md:space-y-0">
+                            <div>
+                                <label class="font-semibold text-gray-700">How are you feeling?</label>
+                                <div class="flex gap-2 md:gap-4 mt-2">
+                                    <div class="flex items-center">
+                                        <input type="radio" id="mood-sad" name="mood" value="sad" class="hidden" required>
+                                        <label for="mood-sad" class="text-2xl md:text-3xl cursor-pointer hover:scale-110 transition-transform p-1 rounded-full">😞</label>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <input type="radio" id="mood-neutral" name="mood" value="neutral" class="hidden">
+                                        <label for="mood-neutral" class="text-2xl md:text-3xl cursor-pointer hover:scale-110 transition-transform p-1 rounded-full">😐</label>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <input type="radio" id="mood-okay" name="mood" value="okay" class="hidden">
+                                        <label for="mood-okay" class="text-2xl md:text-3xl cursor-pointer hover:scale-110 transition-transform p-1 rounded-full">🙂</label>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <input type="radio" id="mood-happy" name="mood" value="happy" class="hidden">
+                                        <label for="mood-happy" class="text-2xl md:text-3xl cursor-pointer hover:scale-110 transition-transform p-1 rounded-full">😊</label>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <input type="radio" id="mood-great" name="mood" value="great" class="hidden">
+                                        <label for="mood-great" class="text-2xl md:text-3xl cursor-pointer hover:scale-110 transition-transform p-1 rounded-full">😁</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="bg-blue-600 text-white font-montserrat font-semibold py-2 px-4 md:px-6 rounded-lg hover:bg-blue-700 transition">Save Entry</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg">
+                    <h2 class="font-montserrat font-semibold text-lg md:text-xl mb-4">Past Entries</h2>
+                    <div class="space-y-4 max-h-96 overflow-y-auto pr-2 entries-container">
+                        {% for entry in entries %}
+                        <div class="border-b pb-4">
+                            <div class="flex items-center justify-between">
+                                <p class="font-semibold text-gray-800 text-sm md:text-base">{{ entry['created_at'].strftime('%B %d, %Y at %I:%M %p') }}</p>
+                                <span class="text-2xl">
+                                    {% if entry['mood'] == 'sad' %}😞
+                                    {% elif entry['mood'] == 'neutral' %}😐
+                                    {% elif entry['mood'] == 'okay' %}🙂
+                                    {% elif entry['mood'] == 'happy' %}😊
+                                    {% elif entry['mood'] == 'great' %}😁
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <p class="text-gray-600 mt-2 text-sm md:text-base">{{ entry['entry_text'] }}</p>
+                        </div>
+                        {% else %}
+                        <p class="text-gray-500">You haven't written any journal entries yet. Add one above to get started!</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg">
+                <h2 class="font-montserrat font-semibold text-lg md:text-xl mb-4">Your Emotion Graph</h2>
+                <p class="text-gray-600 text-sm mb-4">Last 7 days</p>
+                <div id="emotion-data" style="display: none;"
+                     data-labels='{{ chart_labels | tojson | safe }}'
+                     data-data='{{ chart_data | tojson | safe }}'></div>
+                <div class="relative h-64 md:h-80">
+                    <canvas id="emotionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const canvasElement = document.getElementById('emotionChart');
+        const dataElement = document.getElementById('emotion-data');
+        
+        if (canvasElement && dataElement) {
+            // FIX: Parsing data from the hidden data element to avoid linter errors
+            const chartLabels = JSON.parse(dataElement.dataset.labels);
+            const chartData = JSON.parse(dataElement.dataset.data);
+            
+            const ctx = canvasElement.getContext('2d');
+            
+            const moodYLabels = {
+                1: 'Sad', 2: 'Neutral', 3: 'Okay', 4: 'Happy', 5: 'Great'
+            };
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Your Mood',
+                        data: chartData,
+                        fill: true,
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        tension: 0.3,
+                        pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverRadius: 7,
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(59, 130, 246, 1)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 1,
+                            max: 5,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return moodYLabels[value] || '';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

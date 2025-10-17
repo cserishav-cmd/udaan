@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GHQ-12 Assessment - Udaan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-opensans { font-family: 'Open Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 font-opensans">
+    <div class="container mx-auto p-8">
+        <h1 class="text-3xl font-montserrat font-bold text-gray-800">GHQ-12 Assessment</h1>
+        <p class="text-gray-600 mt-2">Please answer the following questions about how you have been feeling over the last few weeks.</p>
+        <form action="{{ url_for('save_assessment') }}" method="post" class="mt-8 bg-white p-8 rounded-xl shadow-lg">
+            <input type="hidden" name="assessment_type" value="GHQ-12">
+            <div class="space-y-6">
+                <div>
+                    <p class="font-semibold">1. Have you recently been able to concentrate on whatever you're doing?</p>
+                    <div class="flex space-x-4 mt-2">
+                        <label><input type="radio" name="q1" value="0" required> Better than usual</label>
+                        <label><input type="radio" name="q1" value="0"> Same as usual</label>
+                        <label><input type="radio" name="q1" value="1"> Less than usual</label>
+                        <label><input type="radio" name="q1" value="1"> Much less than usual</label>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold">2. Have you recently lost much sleep over worry?</p>
+                    <div class="flex space-x-4 mt-2">
+                        <label><input type="radio" name="q2" value="0" required> Not at all</label>
+                        <label><input type="radio" name="q2" value="0"> No more than usual</label>
+                        <label><input type="radio" name="q2" value="1"> Rather more than usual</label>
+                        <label><input type="radio" name="q2" value="1"> Much more than usual</label>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold">3. Have you recently felt that you were playing a useful part in things?</p>
+                    <div class="flex space-x-4 mt-2">
+                        <label><input type="radio" name="q3" value="0" required> More so than usual</label>
+                        <label><input type="radio" name="q3" value="0"> Same as usual</label>
+                        <label><input type="radio" name="q3" value="1"> Less so than usual</label>
+                        <label><input type="radio" name="q3" value="1"> Much less than usual</label>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold">4. Have you recently felt capable of making decisions about things?</p>
+                    <div class="flex space-x-4 mt-2">
+                        <label><input type="radio" name="q4" value="0" required> More so than usual</label>
+                        <label><input type="radio" name="q4" value="0"> Same as usual</label>
+                        <label><input type="radio" name="q4" value="1"> Less so than usual</label>
+                        <label><input type="radio" name="q4" value="1"> Much less capable</label>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold">5. Have you recently felt constantly under strain?</p>
+                    <div class="flex space-x-4 mt-2">
+                        <label><input type="radio" name="q5" value="0" required> Not at all</label>
+                        <label><input type="radio" name="q5" value="0"> No more than usual</label>
+                        <label><input type="radio" name="q5" value="1"> Rather more than usual</label>
+                        <label><input type="radio" name="q5" value="1"> Much more than usual</label>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold">6. Have you recently felt you couldn't overcome your difficulties?</p>
+                    <div class="flex space-x-4 mt-2">
+                        <label><input type="radio" name="q6" value="0" required> Not at all</label>
+                        <label><input type="radio" name="q6" value="0"> No more than usual</label>
+                        <label><input type="radio" name="q6" value="1"> Rather more than usual</label>
+                        <label><input type="radio" name="q6" value="1"> Much more than usual</label>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold">7. Have you recently been able to enjoy your normal day-to-day activities?</p>
+                    <div class="flex space-x-4 mt-2">
+                        <label><input type="radio" name="q7" value="0" required> More so than usual</label>
+                        <label><input type="radio" name="q7" value="0"> Same as usual</label>
+                        <label><input type="radio" name="q7" value="1"> Less so than usual</label>
+                        <label><input type="radio" name="q7" value="1"> Much less than usual</label>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold">8. Have you recently been able to face up to problems?</p>
+                    <div class="flex space-x-4 mt-2">
+                        <label><input type="radio" name="q8" value="0" required> More so than usual</label>
+                        <label><input type="radio" name="q8" value="0"> Same as usual</label>
+                        <label><input type="radio" name="q8" value="1"> Less able than usual</label>
+                        <label><input type="radio" name="q8" value="1"> Much less able</label>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold">9. Have you recently been feeling unhappy or depressed?</p>
+                    <div class="flex space-x-4 mt-2">
+                        <label><input type="radio" name="q9" value="0" required> Not at all</label>
+                        <label><input type="radio" name="q9" value="0"> No more than usual</label>
+                        <label><input type="radio" name="q9" value="1"> Rather more than usual</label>
+                        <label><input type="radio" name="q9" value="1"> Much more than usual</label>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold">10. Have you recently been losing confidence in yourself?</p>
+                    <div class="flex space-x-4 mt-2">
+                        <label><input type="radio" name="q10" value="0" required> Not at all</label>
+                        <label><input type="radio" name="q10" value="0"> No more than usual</label>
+                        <label><input type="radio" name="q10" value="1"> Rather more than usual</label>
+                        <label><input type="radio" name="q10" value="1"> Much more than usual</label>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold">11. Have you recently been thinking of yourself as a worthless person?</p>
+                    <div class="flex space-x-4 mt-2">
+                        <label><input type="radio" name="q11" value="0" required> Not at all</label>
+                        <label><input type="radio" name="q11" value="0"> No more than usual</label>
+                        <label><input type="radio" name="q11" value="1"> Rather more than usual</label>
+                        <label><input type="radio" name="q11" value="1"> Much more than usual</label>
+                    </div>
+                </div>
+                <div>
+                    <p class="font-semibold">12. Have you recently been feeling reasonably happy, all things considered?</p>
+                    <div class="flex space-x-4 mt-2">
+                        <label><input type="radio" name="q12" value="0" required> More so than usual</label>
+                        <label><input type="radio" name="q12" value="0"> About the same as usual</label>
+                        <label><input type="radio" name="q12" value="1"> Less so than usual</label>
+                        <label><input type="radio" name="q12" value="1"> Much less than usual</label>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8">
+                <button type="submit" class="w-full bg-blue-600 text-white font-montserrat font-semibold py-3 rounded-lg hover:bg-blue-700 transition">Submit</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
