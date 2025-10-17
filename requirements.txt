@@ -6,6 +6,7 @@ gunicorn
 
 #Database
 pymysql==1.1.1
+psycopg2-binary
 
 # AI and NLP
 langchain==0.3.26
@@ -21,5 +22,6 @@ requests==2.32.3
 # Image Processing and ML
 opencv-python-headless==4.9.0.80
 tensorflow==2.16.1
+
 
 
