@@ -1,0 +1,49 @@
+#Environment variables
+
+#Contains secrets like API keys and database passwords. Never commit this file!
+
+.env
+
+#Python Virtual Environments
+
+#These are specific to your machine and can be very large.
+
+#Others can recreate the environment using requirements.txt.
+
+udaan_env/
+venv/
+env/
+
+#Python cache files and compiled files
+
+#These are generated automatically by Python.
+
+pycache/
+*.pyc
+*.pyo
+*.pyd
+
+#Large Model and Data Files
+
+#Large binary files can bloat your repository. It's often better to
+
+#provide a link or a script to download them instead.
+
+*.h5
+*.xml
+*.csv
+*.pkl
+
+#IDE and editor specific files
+
+#These store your personal editor settings.
+
+.idea/
+.vscode/
+*.swp
+*.swo
+
+#OS-generated files
+
+.DS_Store
+Thumbs.db
